@@ -1,0 +1,2 @@
+"""Users persistence models."""
+

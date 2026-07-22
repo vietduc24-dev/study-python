@@ -1,0 +1,2 @@
+"""WorkBudget application package."""
+

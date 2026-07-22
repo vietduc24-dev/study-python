@@ -1,0 +1,2 @@
+"""Auth data access."""
+

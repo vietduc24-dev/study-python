@@ -1,0 +1,17 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    ports:
+      - "${HOST_PORT:-8000}:${APP_PORT:-8000}"
+    env_file:
+      - ../WorkBudget/.env
+    volumes:
+      - ../WorkBudget:/app/WorkBudget
+      - ../WorkBudget/.env:/app/WorkBudget/.env:ro
+    environment:
+      - PYTHONPATH=/app
+    security_opt:
+      - no-new-privileges:true

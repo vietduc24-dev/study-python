@@ -1,0 +1,2 @@
+"""Notifications data access."""
+
