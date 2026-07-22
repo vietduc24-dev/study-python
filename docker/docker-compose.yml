@@ -1,5 +1,5 @@
 services:
-  api:
+  dev-workbudget-app:
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -8,6 +8,9 @@ services:
       - "${HOST_PORT:-8000}:${APP_PORT:-8000}"
     env_file:
       - ../WorkBudget/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ../WorkBudget:/app/WorkBudget
       - ../WorkBudget/.env:/app/WorkBudget/.env:ro
@@ -15,3 +18,25 @@ services:
       - PYTHONPATH=/app
     security_opt:
       - no-new-privileges:true
+
+  postgres:
+    image: postgres:16.4-alpine
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-workbudget}
+      POSTGRES_USER: ${POSTGRES_USER:-workbudget}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-workbudget}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
