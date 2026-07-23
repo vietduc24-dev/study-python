@@ -13,6 +13,9 @@ services:
         condition: service_healthy
     volumes:
       - ../WorkBudget:/app/WorkBudget
+      - ../tests:/app/tests:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs
       - ../WorkBudget/.env.local:/app/WorkBudget/.env:ro
       - ../alembic.ini:/app/alembic.ini:ro
     environment:
@@ -36,6 +39,9 @@ services:
         condition: service_completed_successfully
     volumes:
       - ../WorkBudget:/app/WorkBudget
+      - ../tests:/app/tests:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs
       - ../WorkBudget/.env.local:/app/WorkBudget/.env:ro
       - ../alembic.ini:/app/alembic.ini:ro
     environment:
@@ -45,6 +51,10 @@ services:
 
   postgres:
     image: postgres:16.4-alpine
+    networks:
+      default:
+        aliases:
+          - postgres
     ports:
       - "127.0.0.1:5432:5432"
     env_file:

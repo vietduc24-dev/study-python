@@ -5,9 +5,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+import WorkBudget.modules.model_registry  # noqa: F401
 from WorkBudget.core.config import get_settings, load_env_file
 from WorkBudget.core.database import Base
-import WorkBudget.core.models  # noqa: F401
 
 config = context.config
 
