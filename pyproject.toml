@@ -7,10 +7,14 @@ name = "workbudget-backend"
 version = "0.1.0"
 description = "FastAPI backend for the WorkBudget screen catalog."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.13.0",
     "fastapi>=0.111.0",
+    "psycopg[binary]>=3.2.0",
+    "sqlalchemy>=2.0.0",
     "uvicorn[standard]>=0.30.0",
+    "uuid6>=2024.7.10",
 ]
 
 [project.optional-dependencies]
@@ -30,7 +34,7 @@ pythonpath = ["."]
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B"]
