@@ -3,6 +3,7 @@
 from functools import lru_cache
 import os
 from pathlib import Path
+from urllib.parse import quote_plus
 
 from pydantic import BaseModel
 
@@ -29,6 +30,26 @@ class Settings(BaseModel):
     database_url: str = "postgresql+psycopg://workbudget:workbudget@postgres:5432/workbudget"
 
 
+def get_database_url() -> str:
+    """Return DATABASE_URL or compose it from split DB environment values."""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return database_url
+
+    db_host = os.getenv("DB_HOST")
+    db_name = os.getenv("DB_NAME")
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    if db_host and db_name and db_user and db_password:
+        db_port = os.getenv("DB_PORT", "5432")
+        return (
+            "postgresql+psycopg://"
+            f"{quote_plus(db_user)}:{quote_plus(db_password)}@{db_host}:{db_port}/{db_name}"
+        )
+
+    return "postgresql+psycopg://workbudget:workbudget@postgres:5432/workbudget"
+
+
 @lru_cache
 def get_settings() -> Settings:
     """Return cached application settings."""
@@ -36,8 +57,5 @@ def get_settings() -> Settings:
     return Settings(
         app_name=os.getenv("APP_NAME", "WorkBudget API"),
         environment=os.getenv("ENVIRONMENT", "development"),
-        database_url=os.getenv(
-            "DATABASE_URL",
-            "postgresql+psycopg://workbudget:workbudget@postgres:5432/workbudget",
-        ),
+        database_url=get_database_url(),
     )
