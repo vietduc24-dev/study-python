@@ -1,0 +1,74 @@
+name: workbudget-local
+
+services:
+  migrate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    env_file:
+      - ../WorkBudget/.env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../WorkBudget:/app/WorkBudget
+      - ../tests:/app/tests:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs
+      - ../WorkBudget/.env.local:/app/WorkBudget/.env:ro
+      - ../alembic.ini:/app/alembic.ini:ro
+    environment:
+      - PYTHONPATH=/app
+    command: alembic upgrade head
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  dev-workbudget-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../WorkBudget/.env.local
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ../WorkBudget:/app/WorkBudget
+      - ../tests:/app/tests:ro
+      - ../scripts:/app/scripts:ro
+      - ../docs:/app/docs
+      - ../WorkBudget/.env.local:/app/WorkBudget/.env:ro
+      - ../alembic.ini:/app/alembic.ini:ro
+    environment:
+      - PYTHONPATH=/app
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    image: postgres:16.4-alpine
+    networks:
+      default:
+        aliases:
+          - postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - ../WorkBudget/.env.local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
